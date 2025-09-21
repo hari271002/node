@@ -13,6 +13,47 @@ mongoose.connect(DB,{
         console.log('DB connection successful');
     })
 
+const dataSchema = mongoose.Schema({
+    id : {
+        type : Number,
+        required : true,
+        unique : true,
+        validate : [Number.isInteger,"Must be an integer"],
+        min : [1,"ID must be greater than 0"],
+        max : 1000,
+    },
+    name : {
+        type : String,
+        required : true,
+        validate : {
+            validator :(val) =>{
+            return val.length > 0;
+        },
+        message : "Name cannot be empty"
+    },
+        trim : true,
+        maxlength : 100,
+        minlength : 1
+    }
+})
+
+const Data = mongoose.model('Data',dataSchema,"DataCollection");
+
+const dummyData = new Data({
+    id : 1,
+    name : "Dummy"
+})
+
+
+
+dummyData.save().then(doc =>{
+    console.log(doc);
+}).catch(err=>{
+    console.log('Error : ',err);
+});
+
+
+
 app.use(express.json());
 
 const data = JSON.parse(fs.readFileSync(`${__dirname}/dummy-data.txt`, 'utf-8'));
