@@ -1,0 +1,25 @@
+{
+  "name": "practice",
+  "version": "1.0.0",
+  "description": "General practice",
+  "homepage": "https://github.com/hari271002/node_practice#readme",
+  "bugs": {
+    "url": "https://github.com/hari271002/node_practice/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hari271002/node_practice.git"
+  },
+  "license": "ISC",
+  "author": "Hari",
+  "type": "commonjs",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "mongoose": "^8.18.0"
+  }
+}
