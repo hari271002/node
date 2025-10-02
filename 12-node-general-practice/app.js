@@ -45,7 +45,6 @@ const dummyData = new Data({
 })
 
 
-
 dummyData.save().then(doc =>{
     console.log(doc);
 }).catch(err=>{
