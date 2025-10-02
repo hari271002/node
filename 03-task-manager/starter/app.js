@@ -8,6 +8,7 @@ dotenv.config();
 
 const port = process.env.port || 3000;
 app.use(express.json());
+app.use(express.static("./public"));
 app.use("/api/v1/tasks", tasks);
 
 const start = async () => {
