@@ -1,80 +1,59 @@
 const taskSchema = require("../models/dataschema");
 const mongoose = require("mongoose");
+const asyncWrapper = require("../midddlerware/async");
+const { customAPIError } = require("../error/error");
 
-const getAllTasks = async (req, res) => {
-  try {
-    task = await taskSchema.find();
-    res.status(200).json({ tasks: task });
-  } catch (err) {
-    res.status(400).json(err);
+const getAllTasks = asyncWrapper(async (req, res) => {
+  task = await taskSchema.find();
+  res.status(200).json({ tasks: task });
+});
+
+const createTask = asyncWrapper(async (req, res) => {
+  task = await taskSchema.create(req.body);
+  res.status(201).json(task);
+});
+
+const deleteTask = asyncWrapper(async (req, res, next) => {
+  const { id: taskId } = req.params;
+  if (!mongoose.Types.ObjectId.isValid(taskId)) {
+    return next(customAPIError("Invalid Id format....", 404));
   }
-};
+  task = await taskSchema.deleteOne({ _id: taskId });
+  res.status(200).json("");
+});
 
-const createTask = async (req, res) => {
-  try {
-    task = await taskSchema.create(req.body);
-    res.status(201).json(task);
-  } catch (err) {
-    res.status(400).json(err);
+const updateTask = asyncWrapper(async (req, res, next) => {
+  const { id: taskId } = req.params;
+  const body = req.body;
+
+  if (!mongoose.Types.ObjectId.isValid(taskId)) {
+    return next(customAPIError("Invalid Id format...", 404));
   }
-};
 
-const deleteTask = async (req, res) => {
-  try {
-    //console.log(req.body);
-    const { id: taskId } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(taskId)) {
-      return res.status(401).json({ msg: "Invalid task ID format" });
-    }
-    task = await taskSchema.deleteOne({ _id: taskId });
-    res.status(200).json(task);
-  } catch (err) {
-    res.status(400).json(err);
+  const task = await taskSchema.findByIdAndUpdate(
+    taskId,
+    { name: body.name, completed: body.completed },
+    { new: true, runValidators: true }
+  );
+
+  if (!task) {
+    return next(customAPIError("No document found to update", 404));
   }
-};
 
-const updateTask = async (req, res) => {
-  try {
-    const { id: taskId } = req.params;
-    const body = req.body;
+  res.status(200).json({ task });
+});
 
-    if (!mongoose.Types.ObjectId.isValid(taskId)) {
-      return res.status(400).json({ msg: "Invalid task ID format" });
-    }
-
-    const task = await taskSchema.findByIdAndUpdate(
-      taskId,
-      { name: body.name },
-      { new: true, runValidators: true }
-    );
-
-    if (!task) {
-      return res.status(404).json({ msg: "No document found to update" });
-    }
-
-    res.status(200).json(task);
-  } catch (err) {
-    res.status(500).json({ msg: "Server error", error: err.message });
+const getTask = asyncWrapper(async (req, res, next) => {
+  const { id: taskId } = req.params;
+  if (!mongoose.Types.ObjectId.isValid(taskId)) {
+    return next(customAPIError("Invalid Id format...", 404));
   }
-};
-
-const getTask = async (req, res) => {
-  try {
-    const { id: taskId } = req.params;
-    if (!mongoose.Types.ObjectId.isValid(taskId)) {
-      return res.status(401).json({ msg: "Invalid task ID format" });
-    }
-    task = await taskSchema.findOne({ _id: taskId });
-    if (!task) {
-      return res
-        .status(404)
-        .json({ msg: `cannot find records with ${taskId}` });
-    }
-    res.status(200).json(task);
-  } catch (err) {
-    res.status(400).json(err);
+  task = await taskSchema.findOne({ _id: taskId });
+  if (!task) {
+    return next(customAPIError(`Cannot find record with ${taskId}`, 404));
   }
-};
+  res.status(200).json({ task });
+});
 
 module.exports = {
   getAllTasks,
