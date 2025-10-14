@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
 
-const { welcomeTask } = require("../controllers/products");
+const { getAllProducts } = require("../controllers/products");
 
-router.route("/").get(welcomeTask);
+router.route("/").get(getAllProducts);
 
 module.exports = router;
